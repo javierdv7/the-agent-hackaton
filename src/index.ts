@@ -74,7 +74,7 @@ export default{
         responseHeaders.set("Cache-Control", "public, max-age=3600");
 
         return new Response(ttsResponse.body, {
-        headers: responseHeaders,
+            headers: responseHeaders,
         });
     }
 }
