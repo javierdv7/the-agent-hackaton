@@ -3,10 +3,18 @@ export interface Env {
   ELEVENLABS_API_KEY: string;
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 export default{
-    async fetch(request, env, ctx) {
+    async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
         if (request.method !== "POST") {
-            return Response.json({ error: "Method not allowed" }, { status: 405 });
+            return new Response(JSON.stringify({ error: "Method not allowed" }), {
+                status: 405,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
         }
 
         let userMessage: string;
@@ -20,6 +28,21 @@ export default{
             return Response.json({ error: "Invalid JSON body" }, { status: 400 });
         }
 
+        const context = [
+            "Eres EnergIA, un agente IA para controlar la información eléctrica y domótica en un sector controlado.",
+            "Tu objetivo es ayudar a los usuarios a gestionar su consumo energético de manera eficiente."
+        ].join("\n");
+
+        const messages = [
+            { role: "system", content: context },
+            { role: "user", content: userMessage },
+        ];
+
+        const aiResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+            messages,
+        }) as { response: string };
+
+        const aiText = aiResponse.response || "No pude generar una respuesta exitósamente.";
         const ttsResponse = await fetch("https://api.elevenlabs.io/v1/text-to-speech/RPyiWKUxiaFLwZodgu66", {
             method: "POST",
             headers: {
@@ -27,9 +50,8 @@ export default{
                 "Content-Type": "application/json",
                 "xi-api-key": env.ELEVENLABS_API_KEY
             },
-
             body: JSON.stringify({
-                text: userMessage || "No response generated",
+                text: aiText || "No response generated",
                 model_id: "eleven_flash_v2_5",
                 voice_settings: {
                 stability: 0.5,
@@ -39,14 +61,20 @@ export default{
         });
 
         if (!ttsResponse.ok) {
-            return Response.json({ error: "TTS generation failed" }, { status: 500 });
+            const errorBody = await ttsResponse.text();
+            console.error("Error de ElevenLabs:", errorBody);
+            return new Response(JSON.stringify({ error: "TTS generation failed" }), {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
         }
 
+        const responseHeaders = new Headers(corsHeaders);
+        responseHeaders.set("Content-Type", "audio/mpeg");
+        responseHeaders.set("Cache-Control", "public, max-age=3600");
+
         return new Response(ttsResponse.body, {
-            headers: {
-                "Content-Type": "audio/mpeg",
-                "Cache-Control": "public, max-age=3600"
-            }
+        headers: responseHeaders,
         });
     }
 }
