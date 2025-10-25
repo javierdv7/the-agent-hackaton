@@ -1,0 +1,9 @@
+// Archivo: wrangler.jsonc
+{
+  // Cambia esto al nombre de tu proyecto en Cloudflare
+  "name": "api",
+
+  // Puedes usar la fecha del log
+  "compatibility_date": "2025-10-25",
+  "main": "fastapi-json-crud/main.py"
+}
