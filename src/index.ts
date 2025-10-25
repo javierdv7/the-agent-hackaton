@@ -1,6 +1,9 @@
+import { AgentNamespace, getAgentByName, Agent, WSMessage, Connection } from "agents";
+
 export interface Env {
   AI: Ai;
   ELEVENLABS_API_KEY: string;
+  EnergIA: AgentNamespace<EnergIA>;
 }
 
 const corsHeaders = {
@@ -8,8 +11,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-export default{
+export default {
     async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+        let namedAgent = getAgentByName<Env, EnergIA>(env.EnergIA, "EnergIA");
+        let namedResp = (await namedAgent).fetch(request);
+        return namedResp;
+    }
+} satisfies ExportedHandler<Env>;
+
+export class EnergIA extends Agent<Env> {
+    async onStart() {
+        console.log("EnergIA agent started with state:", this.state);
+    }
+
+    async onRequest(request: Request): Promise<Response> {
         if (request.method !== "POST") {
             return new Response(JSON.stringify({ error: "Method not allowed" }), {
                 status: 405,
@@ -38,7 +53,7 @@ export default{
             { role: "user", content: userMessage },
         ];
 
-        const aiResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+        const aiResponse = await this.env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
             messages,
         }) as { response: string };
 
@@ -48,14 +63,14 @@ export default{
             headers: {
                 "Accept": "audio/mpeg",
                 "Content-Type": "application/json",
-                "xi-api-key": env.ELEVENLABS_API_KEY
+                "xi-api-key": this.env.ELEVENLABS_API_KEY
             },
             body: JSON.stringify({
                 text: aiText || "No response generated",
                 model_id: "eleven_flash_v2_5",
                 voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.75
+                    stability: 0.5,
+                    similarity_boost: 0.75
                 }
             })
         });
@@ -76,5 +91,9 @@ export default{
         return new Response(ttsResponse.body, {
             headers: responseHeaders,
         });
+    }
+
+    async onMessage(connection: Connection, message: WSMessage) {
+        connection.send("EnergIA has received your message.");
     }
 }
