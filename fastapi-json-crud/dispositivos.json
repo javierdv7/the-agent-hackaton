@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "nombre": "Laptop Principal",
+    "tipo": "laptop",
+    "marca": "Dell",
+    "modelo": "XPS 13",
+    "estado": "activo",
+    "fecha_adquisicion": "2024-01-15"
+  },
+  {
+    "id": 2,
+    "nombre": "Teléfono Oficina",
+    "tipo": "smartphone",
+    "marca": "Samsung",
+    "modelo": "Galaxy S23",
+    "estado": "activo",
+    "fecha_adquisicion": "2024-02-20"
+  },
+  {
+    "id": 3,
+    "nombre": "Tablet Reuniones",
+    "tipo": "tablet",
+    "marca": "Apple",
+    "modelo": "iPad Air",
+    "estado": "mantenimiento",
+    "fecha_adquisicion": "2023-11-10"
+  }
+]

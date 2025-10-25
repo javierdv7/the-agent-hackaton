@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+.venv/
+venv/
+
+# Environment variables
+.env
+.flaskenv
+
+# Database
+*.sqlite3
+*.db
+test_db.db # Specific to FastAPI tutorials sometimes
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/

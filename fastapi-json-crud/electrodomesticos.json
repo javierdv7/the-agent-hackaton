@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "nombre": "Refrigerador Principal",
+    "marca": "LG",
+    "voltaje": 220.0,
+    "corriente": 1.2,
+    "potencia": 264.0,
+    "energia": 2.5
+  },
+  {
+    "id": 2,
+    "nombre": "Lavadora Automática",
+    "marca": "Samsung",
+    "voltaje": 220.0,
+    "corriente": 10.0,
+    "potencia": 2200.0,
+    "energia": 1.8
+  },
+  {
+    "id": 3,
+    "nombre": "Televisor Sala",
+    "marca": "Sony",
+    "voltaje": 110.0,
+    "corriente": 0.8,
+    "potencia": 88.0,
+    "energia": 0.15
+  },
+  {
+    "id": 4,
+    "nombre": "Aire Acondicionado",
+    "marca": "Midea",
+    "voltaje": 220.0,
+    "corriente": 6.8,
+    "potencia": 1500.0,
+    "energia": 3.2
+  },
+  {
+    "id": 5,
+    "nombre": "Microondas",
+    "marca": "Panasonic",
+    "voltaje": 110.0,
+    "corriente": 12.0,
+    "potencia": 1320.0,
+    "energia": 1.1
+  }
+]
