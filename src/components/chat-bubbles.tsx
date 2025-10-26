@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Chart } from "@/components/chat-charts";
 
 function base64ToBlob(base64: string, contentType = "audio/mpeg") {
   const byteCharacters = atob(base64);
@@ -100,7 +101,7 @@ function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message
               playAudio();
             }
           }}
-          className="size-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 text-white cursor-pointer self-end"
+          className="size-7 flex items-center justify-center rounded-full bg-foreground/20 hover:bg-foreground/30 border border-foreground/30 text-foreground cursor-pointer self-end"
         >
           {isAudioPlaying || isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
@@ -122,7 +123,7 @@ function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Messa
       ${message.user === "user" ? "self-end text-white bg-[#e16e09]/30 border-[#e16e09]/50 shadow-[0_8px_32px_rgba(225,110,9,0.25)]" : "self-start text-foreground-900 bg-white/15 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}
     `}
     >
-      <BubbleContent message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />
+      {message.type === "graph" && message.chartData ? <Chart data={message.chartData} /> : <BubbleContent message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />}
     </motion.div>
   );
 }
