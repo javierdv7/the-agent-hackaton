@@ -1,9 +1,17 @@
+import jinja2
+
 from fastapi import FastAPI, HTTPException
+from workers import WorkerEntrypoint
+
 from models import Electrodomestico
-from database import cargar_electrodomesticos, guardar_electrodomesticos, crear_datos_ejemplo, id_existe
-from datetime import datetime
+from database import (
+    cargar_electrodomesticos, guardar_electrodomesticos,
+    crear_datos_ejemplo, id_existe
+)
 from simulador import SimuladorElectrodomesticos
 
+environment = jinja2.Environment()
+template = environment.from_string("Hello, {{ name }}!")
 
 app = FastAPI(title="API Gestión de Electrodomésticos", version="1.0.0")
 
@@ -71,3 +79,9 @@ def obtener_medicion_simulada(electrodomestico_id: int):
     """Obtener medición simulada para un electrodoméstico específico"""
     simulador = SimuladorElectrodomesticos()
     return simulador.simular_uno(electrodomestico_id)
+
+class Default(WorkerEntrypoint):
+    async def fetch(self, request):
+        import asgi
+
+        return await asgi.fetch(app, request.js_object, self.env)

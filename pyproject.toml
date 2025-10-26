@@ -4,12 +4,56 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "fastapi[standard]>=0.120.0",
-    "pydantic>=2.12.3",
+dependencies = dependencies = [
+    "fastapi",
+    "annotated-doc",
+    "annotated-types",
+    "anyio",
+    "certifi",
+    "click",
+    "colorama",
+    "dnspython",
+    "email-validator",
+    "fastapi-cli",
+    "fastapi-cloud-cli",
+    "h11",
+    "httpcore",
+    "httptools",
+    "httpx",
+    "idna",
+    "jinja2",
+    "markdown-it-py",
+    "markupsafe",
+    "mdurl",
+    "pydantic",
+    "pydantic-core",
+    "pygments",
+    "python-dotenv",
+    "python-multipart",
+    "pyyaml",
+    "rich",
+    "rich-toolkit",
+    "rignore",
+    "sentry-sdk",
+    "shellingham",
+    "sniffio",
+    "starlette",
+    "typer",
+    "typing-extensions",
+    "typing-inspection",
+    "urllib3",
+    "uvicorn",
+    "watchfiles",
+    "websockets",
 ]
+
 
 [tool.uv.workspace]
 members = [
     "fastapi-json-crud",
+]
+
+[dependency-groups]
+dev = [
+    "workers-py"
 ]
