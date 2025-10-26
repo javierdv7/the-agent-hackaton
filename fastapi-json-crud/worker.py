@@ -1,5 +1,3 @@
-import jinja2
-
 from fastapi import FastAPI, HTTPException
 from workers import WorkerEntrypoint
 
