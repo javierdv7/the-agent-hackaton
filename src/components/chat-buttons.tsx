@@ -124,13 +124,13 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting, messages, 
       transition={{ delay: isMobile ? 0 : 2, when: "beforeChildren", staggerChildren: 0.3 }}
     >
       {messages.length === 0 && (
-        <motion.div className="h-15 w-[50%] flex gap-2 flex items-center justify-center">
+        <motion.div className={`h-15 ${isMobile ? "w-full flex-col justify-end" : " w-[50%]"} flex gap-2 flex items-center justify-center`}>
           {chatButtons.map((button, index) => (
             <motion.button
               onClick={() => setInput(button)}
               key={index}
               variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-              className="h-full hover:bg-[#e16e09]/30 hover:border-[#e16e09]/70 transition-all duration-100 w-[33.33%] flex items-center justify-center border rounded-md cursor-pointer bg-white/50 backdrop-blur-[10px]"
+              className={`h-full hover:bg-[#e16e09]/30 hover:border-[#e16e09]/70 transition-all duration-100 ${isMobile ? "w-full h-5" : "w-[33.33%]"} flex items-center justify-center border rounded-md cursor-pointer bg-white/50 backdrop-blur-[10px]`}
             >
               &quot;{button}&quot;
             </motion.button>
@@ -206,7 +206,7 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting, messages, 
         >
           {waiting ? <Spinner /> : <Send className={`w-5 h-5  transition-all duration-200 ${!input.trim() && !waiting ? "text-foreground/70" : "text-[#e16e09]"}`} />}
         </motion.button>
-          <Conversation />
+        <Conversation />
       </motion.form>
     </motion.div>
   );

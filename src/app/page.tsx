@@ -23,7 +23,7 @@ export default function Home() {
           <Chat />
         </SidebarInset>
       </SidebarProvider>
-      <div className="w-50 h-20 bg-black absolute bottom-0 right-0 z-1000 flex items-center justify-center font-bold">The Agent Hackathon</div>
+      <div className="w-50 h-20 bg-black absolute bottom-0 right-0 z-1000 flex items-center justify-center font-bold hidden md:block">The Agent Hackathon</div>
     </div>
   );
 }
