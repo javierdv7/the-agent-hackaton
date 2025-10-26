@@ -1,0 +1,151 @@
+"use client";
+import { Message } from "@/lib/types";
+import { motion } from "framer-motion";
+import { ReactNode, useRef, useState } from "react";
+import { Play, Pause } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Chart } from "@/components/chat-charts";
+
+function base64ToBlob(base64: string, contentType = "audio/mpeg") {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: contentType });
+}
+
+function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message: Message; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playAudio = () => {
+    if (!message.audioData) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    const isDataUrl = message.audioData.startsWith("data:audio");
+    const src = isDataUrl ? message.audioData : URL.createObjectURL(base64ToBlob(message.audioData, "audio/mpeg"));
+    const audio = new Audio(src);
+    audioRef.current = audio;
+    audio.onended = () => {
+      setIsPlaying(false);
+      if (!isDataUrl && src.startsWith("blob:")) URL.revokeObjectURL(src);
+      audioRef.current = null;
+    };
+    audio
+      .play()
+      .then(() => setIsPlaying(true))
+      .catch(() => setIsPlaying(false));
+  };
+
+  const stopAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    const src = audio.src;
+    if (src.startsWith("blob:")) URL.revokeObjectURL(src);
+    audioRef.current = null;
+    setIsPlaying(false);
+  };
+
+  return (
+    <div className="flex items-center gap-2 ">
+      <div className="flex-1">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkBreaks]}
+          components={{
+            a: (props) => <a {...props} className="underline" target="_blank" rel="noopener noreferrer" />,
+            code: ({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: ReactNode }) => {
+              const isInline = Boolean(inline);
+              if (isInline) {
+                return (
+                  <code className="px-1 rounded bg-white/10" {...props}>
+                    {children}
+                  </code>
+                );
+              }
+              const content = String(children).replace(/\n$/, "");
+              return (
+                <pre className="p-3 rounded bg-black/30 overflow-x-auto" {...props}>
+                  <code className={className}>{content}</code>
+                </pre>
+              );
+            },
+            ul: (props) => <ul {...props} className="list-disc pl-4" />,
+            ol: (props) => <ol {...props} className="list-decimal pl-4" />,
+            blockquote: (props) => <blockquote {...props} className="border-l pl-4 opacity-80" />,
+            strong: (props) => <strong {...props} className="text-[#e16e09]" />,
+          }}
+        >
+          {message.text}
+        </ReactMarkdown>
+      </div>
+      {message.user === "bot" && message.audioData && (
+        <button
+          type="button"
+          onClick={() => {
+            if (isAudioPlaying && pauseCurrentAudio) {
+              pauseCurrentAudio();
+              return;
+            }
+            if (isPlaying) {
+              stopAudio();
+            } else {
+              playAudio();
+            }
+          }}
+          className="size-7 flex items-center justify-center rounded-full bg-foreground/20 hover:bg-foreground/30 border border-foreground/30 text-foreground cursor-pointer self-end"
+        >
+          {isAudioPlaying || isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Message; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`user-select-auto pointer-events-auto
+      relative p-4 rounded-[20px] max-w-[80%] break-words
+      backdrop-blur-[2px]
+      z-[700]
+      border
+      ${message.user === "user" ? "self-end text-white bg-[#e16e09]/30 border-[#e16e09]/50 shadow-[0_8px_32px_rgba(225,110,9,0.25)]" : "self-start text-foreground-900 bg-white/15 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}
+    `}
+    >
+      {message.type === "graph" && message.chartData ? <Chart data={message.chartData} /> : <BubbleContent message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />}
+    </motion.div>
+  );
+}
+
+export function ChatBubbles({ messages, pauseCurrentAudio, isAudioPlaying }: { messages: Message[]; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
+  const isMobile = useIsMobile();
+  return (
+    <motion.div className={`flex w-full h-full absolute py-28 flex ${isMobile ? "justify-center" : "justify-center user-select-none pointer-events-none"}  align-center`} initial="hidden" animate="show">
+      <motion.div
+        className={`h-full min-h-0  z-[150]  ${isMobile ? "w-full" : "w-[60%]"} flex px-4 flex-col gap-2 justify-end items-center`}
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.5 },
+          },
+        }}
+      >
+        {messages.map((message, index) => (
+          <Bubble key={index} message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />
+        ))}
+      </motion.div>
+    </motion.div>
+  );
+}
