@@ -48,15 +48,6 @@ const Button = ({
     classes += " h-9 w-9";
   }
 
-  if (asChild && React.isValidElement(children)) {
-    // Clona las clases y props en el elemento hijo (ej. <a>)
-    return React.cloneElement(children, {
-      className: `${classes} ${children.props.className || ""}`,
-      "aria-label": ariaLabel,
-      ...props,
-    });
-  }
-
   return (
     <button className={classes} aria-label={ariaLabel} {...props}>
       {children}
