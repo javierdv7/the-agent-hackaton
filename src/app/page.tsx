@@ -16,13 +16,14 @@ export default function Home() {
       >
         <AppSidebar />
         <SidebarInset className="bg-grid-glow">
-          <Spline scene="https://prod.spline.design/aOWMFN9EyxGf5rvB/scene.splinecode" className="z-100 hidden sm:block" />
+          <Spline scene="https://prod.spline.design/1ff7UimOLWlh5QfW/scene.splinecode" className="z-100 hidden sm:block" />
           <header className="flex h-16 shrink-0 items-center gap-2 px-2 absolute top-0">
             <SidebarTrigger className="z-1000" />
           </header>
           <Chat />
         </SidebarInset>
       </SidebarProvider>
+      <div className="w-50 h-20 bg-black absolute bottom-0 right-0 z-1000 flex items-center justify-center font-bold">The Agent Hackathon</div>
     </div>
   );
 }
