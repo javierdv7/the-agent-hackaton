@@ -6,6 +6,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRef, useState, useEffect } from "react";
 import { Message } from "@/lib/types";
+import { Conversation } from "@/components/call";
 
 interface ChatButtonsProps {
   input: string;
@@ -205,17 +206,7 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting, messages, 
         >
           {waiting ? <Spinner /> : <Send className={`w-5 h-5  transition-all duration-200 ${!input.trim() && !waiting ? "text-foreground/70" : "text-[#e16e09]"}`} />}
         </motion.button>
-        <motion.button
-          type="button"
-          onClick={startVoiceInput}
-          aria-pressed={isRecording}
-          className={`h-full w-20 flex items-center justify-center rounded-md border cursor-pointer backdrop-blur-[10px] ${
-            isRecording ? "bg-[#e16e09]/30 border-[#e16e09]/70 focus:border-[#e16e09] active:border-[#e16e09]" : "bg-foreground/5 border-foreground/70 focus:border-foreground active:border-foreground"
-          }`}
-          variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-        >
-          <Mic className={`w-5 h-5 ${isRecording ? "text-[#e16e09]" : "text-zinc-500"}`} />
-        </motion.button>
+          <Conversation />
       </motion.form>
     </motion.div>
   );
