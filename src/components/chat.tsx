@@ -111,7 +111,7 @@ export const Chat = ({}) => {
   return (
     <>
       <ChatBubbles messages={messages} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={!!currentAudio} />
-      <ChatButtons waiting={waiting} input={input} setInput={setInput} handleSubmit={handleSubmit} />
+      <ChatButtons waiting={waiting} input={input} setInput={setInput} handleSubmit={handleSubmit} messages={messages} />
     </>
   );
 };

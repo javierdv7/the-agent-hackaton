@@ -14,17 +14,13 @@ export default function Home() {
         }
         defaultOpen={false}
       >
-        <AppSidebar className="z-[400]" />
-        <SidebarInset className="bg-grid-glow flex flex-col items-center justify-center relative">
-          <div className="w-full h-full z-[100] hidden sm:block absolute inset-0">
-            <Spline scene="https://prod.spline.design/aOWMFN9EyxGf5rvB/scene.splinecode" />
-          </div>
-          <header className="flex h-16 w-full shrink-0 items-center gap-2 px-2 top-0 relative z-[1000]">
-            <SidebarTrigger className="z-[300]" />
+        <AppSidebar />
+        <SidebarInset className="bg-grid-glow">
+          <Spline scene="https://prod.spline.design/aOWMFN9EyxGf5rvB/scene.splinecode" className="z-100 hidden sm:block" />
+          <header className="flex h-16 shrink-0 items-center gap-2 px-2 absolute top-0">
+            <SidebarTrigger className="z-1000" />
           </header>
-          <div className="flex-1 w-full relative z-[200]">
-            <Chat />
-          </div>
+          <Chat />
         </SidebarInset>
       </SidebarProvider>
     </div>

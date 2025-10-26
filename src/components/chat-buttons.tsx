@@ -5,15 +5,19 @@ import { motion } from "framer-motion";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRef, useState, useEffect } from "react";
+import { Message } from "@/lib/types";
 
 interface ChatButtonsProps {
   input: string;
   setInput: (input: string) => void;
   handleSubmit: () => void;
   waiting: boolean;
+  messages: Message[];
 }
 
-export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButtonsProps) {
+const chatButtons = ["Información de tarifa eléctrica", "Cuáles son mis datos actuales?", "Grafica mi corriente de hoy"];
+
+export function ChatButtons({ input, setInput, handleSubmit, waiting, messages }: ChatButtonsProps) {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -78,16 +82,35 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
   }, []);
 
   return (
-    <motion.div className="w-full h-20 z-[100] absolute bottom-5 p-2 gap-2 flex justify-center items-center" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+    <motion.div
+      className={`flex-col w-full  ${messages.length === 0 ? "h-35" : "h-20"} z-[200] absolute bottom-5 p-2 gap-2 flex justify-end items-center`}
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: isMobile ? 0 : 2, when: "beforeChildren", staggerChildren: 0.3 }}
+    >
+      {messages.length === 0 && (
+        <motion.div className="h-15 w-[50%] flex gap-2 flex items-center justify-center">
+          {chatButtons.map((button, index) => (
+            <motion.button
+              onClick={() => setInput(button)}
+              key={index}
+              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+              className="h-full hover:bg-[#e16e09]/30 hover:border-[#e16e09]/70 transition-all duration-100 w-[33.33%] flex items-center justify-center border rounded-md cursor-pointer bg-white/50 backdrop-blur-[10px]"
+            >
+              &quot;{button}&quot;
+            </motion.button>
+          ))}
+        </motion.div>
+      )}
       <motion.form
-        className={`w-[60%] h-full flex items-center justify-center gap-2 ${isMobile ? "w-full" : ""}`}
+        className={`w-[60%] h-15 flex items-center justify-center gap-2 ${isMobile ? "w-full" : ""}`}
         initial="hidden"
         animate="show"
         variants={{
           hidden: { opacity: 0 },
           show: {
             opacity: 1,
-            transition: { delay: 2, when: "beforeChildren", staggerChildren: 0.3 },
+            transition: { delay: isMobile ? 0 : 2, when: "beforeChildren", staggerChildren: 0.3 },
           },
         }}
         onSubmit={onSubmit}

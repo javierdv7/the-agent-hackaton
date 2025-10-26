@@ -1,7 +1,7 @@
 "use client";
 import { Message } from "@/lib/types";
 import { motion } from "framer-motion";
-import React, { ReactNode, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -55,7 +55,7 @@ function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 ">
       <div className="flex-1">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkBreaks]}
@@ -100,7 +100,7 @@ function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message
               playAudio();
             }
           }}
-          className="size-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 text-white"
+          className="size-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 text-white cursor-pointer self-end"
         >
           {isAudioPlaying || isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
@@ -114,9 +114,10 @@ function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Messa
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={` user-select-auto pointer-events-auto
+      className={`user-select-auto pointer-events-auto
       relative p-4 rounded-[20px] max-w-[80%] break-words
       backdrop-blur-[2px]
+      z-[700]
       border
       ${message.user === "user" ? "self-end text-white bg-[#e16e09]/30 border-[#e16e09]/50 shadow-[0_8px_32px_rgba(225,110,9,0.25)]" : "self-start text-foreground-900 bg-white/15 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}
     `}
@@ -129,14 +130,14 @@ function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Messa
 export function ChatBubbles({ messages, pauseCurrentAudio, isAudioPlaying }: { messages: Message[]; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
   const isMobile = useIsMobile();
   return (
-    <motion.div className={`flex w-full h-full z-[200] absolute pb-28 pt-20 flex ${isMobile ? "justify-end" : "justify-center"} align-center user-select-none pointer-events-none`} initial="hidden" animate="show">
+    <motion.div className={`flex w-full h-full absolute py-28 flex ${isMobile ? "justify-center" : "justify-center user-select-none pointer-events-none"}  align-center`} initial="hidden" animate="show">
       <motion.div
-        className={`h-full w-[${isMobile ? "100%" : "50%"}] flex flex-col gap-4 px-4 justify-end`}
+        className={`h-full min-h-0  z-[150]  ${isMobile ? "w-full" : "w-[60%]"} flex px-4 flex-col gap-2 justify-end items-center`}
         variants={{
           hidden: { opacity: 0 },
           show: {
             opacity: 1,
-            transition: { delay: 3, when: "beforeChildren", staggerChildren: 0.5 },
+            transition: { staggerChildren: 0.5 },
           },
         }}
       >
