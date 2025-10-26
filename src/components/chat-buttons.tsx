@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Mic, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { Spinner } from "@/components/ui/spinner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useRef, useState, useEffect } from "react";
 
 interface ChatButtonsProps {
   input: string;
@@ -18,10 +20,64 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
     handleSubmit();
   };
 
+  const isMobile = useIsMobile();
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const startVoiceInput = () => {
+    if (waiting) return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Tu navegador no soporta reconocimiento de voz.");
+      return;
+    }
+    if (isRecording && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "es-ES";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => setIsRecording(true);
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+    recognition.onerror = () => {
+      setIsRecording(false);
+    };
+    recognition.onend = () => {
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   return (
-    <motion.div className="w-full h-20 z-100 absolute bottom-20 p-2 gap-2 flex justify-center align-center" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+    <motion.div className="w-full h-20 z-100 absolute bottom-5 p-2 gap-2 flex justify-center align-center" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
       <motion.form
-        className="w-[60%] h-full flex items-center justify-center gap-2"
+        className={`w-[60%] h-full flex items-center justify-center gap-2 ${isMobile ? "w-full" : ""}`}
         initial="hidden"
         animate="show"
         variants={{
@@ -35,11 +91,14 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
       >
         <motion.button
           type="button"
-          className="h-full w-20 flex items-center justify-center rounded-md bg-foreground/5 border border-foreground/70 cursor-pointer focus:border-foreground active:border-foreground 
-      backdrop-blur-[10px]"
+          onClick={startVoiceInput}
+          aria-pressed={isRecording}
+          className={`h-full w-20 flex items-center justify-center rounded-md border cursor-pointer backdrop-blur-[10px] ${
+            isRecording ? "bg-[#e16e09]/30 border-[#e16e09]/70 focus:border-[#e16e09] active:border-[#e16e09]" : "bg-foreground/5 border-foreground/70 focus:border-foreground active:border-foreground"
+          }`}
           variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
         >
-          <Mic className="w-5 h-5 text-zinc-500" />
+          <Mic className={`w-5 h-5 ${isRecording ? "text-[#e16e09]" : "text-zinc-500"}`} />
         </motion.button>
         <motion.div className="w-full h-full" variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
           <Input
