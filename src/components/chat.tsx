@@ -2,13 +2,33 @@
 import { ChatBubbles } from "./chat-bubbles";
 import { ChatButtons } from "./chat-buttons";
 import { useState } from "react";
-import { Conversations, Message } from "@/lib/types";
+import { Message } from "@/lib/types";
+import { useRef } from "react";
 
 export const Chat = ({}) => {
   const [waiting, setWaiting] = useState(false);
-  const [conversations, setConversations] = useState<Conversations>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const currentAudioSrcRef = useRef<string | null>(null);
+  const currentAudioIsDataUrlRef = useRef<boolean>(false);
+
+  const pauseCurrentAudio = () => {
+    const a = currentAudio;
+    if (!a) return;
+    try {
+      a.pause();
+    } catch {}
+    const src = currentAudioSrcRef.current;
+    const isDataUrl = currentAudioIsDataUrlRef.current;
+    if (src && !isDataUrl && src.startsWith("blob:")) {
+      URL.revokeObjectURL(src);
+    }
+    setCurrentAudio(null);
+    currentAudioSrcRef.current = null;
+    setWaiting(false);
+  };
 
   const handleSubmit = async () => {
     const userMessage = input.trim();
@@ -22,7 +42,7 @@ export const Chat = ({}) => {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, chatId: "1", userId: "1" }),
       });
 
       if (!res.ok) {
@@ -50,19 +70,29 @@ export const Chat = ({}) => {
           const src = isDataUrl ? data.audioData : URL.createObjectURL(base64ToBlob(data.audioData, "audio/mpeg"));
           const audio = new Audio(src);
 
+          currentAudioIsDataUrlRef.current = isDataUrl;
+          currentAudioSrcRef.current = src;
+          setCurrentAudio(audio);
+
           audio.onended = () => {
             if (!isDataUrl) URL.revokeObjectURL(src);
             setWaiting(false);
+            setCurrentAudio(null);
+            currentAudioSrcRef.current = null;
           };
           audio.onerror = () => {
             if (!isDataUrl) URL.revokeObjectURL(src);
             setWaiting(false);
+            setCurrentAudio(null);
+            currentAudioSrcRef.current = null;
           };
 
           audio.play().catch(() => {
             setMessages((prev) => [...prev, { text: "Reproducción automática bloqueada. Usa el botón para escuchar.", user: "bot" }]);
             if (!isDataUrl) URL.revokeObjectURL(src);
             setWaiting(false);
+            setCurrentAudio(null);
+            currentAudioSrcRef.current = null;
           });
         } catch {
           setMessages((prev) => [...prev, { text: "Error al preparar el audio recibido.", user: "bot" }]);
@@ -80,7 +110,7 @@ export const Chat = ({}) => {
   };
   return (
     <>
-      <ChatBubbles messages={messages} />
+      <ChatBubbles messages={messages} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={!!currentAudio} />
       <ChatButtons waiting={waiting} input={input} setInput={setInput} handleSubmit={handleSubmit} />
     </>
   );

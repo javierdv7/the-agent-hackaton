@@ -2,12 +2,12 @@ export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { message, chatId, userId } = await req.json();
 
     const upstream = await fetch("https://agentworkers.vicmoor07.workers.dev", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, chatId, userId }),
     });
 
     if (!upstream.ok) {

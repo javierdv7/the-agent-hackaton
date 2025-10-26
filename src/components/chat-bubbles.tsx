@@ -14,7 +14,7 @@ function base64ToBlob(base64: string, contentType = "audio/mpeg") {
   return new Blob([byteArray], { type: contentType });
 }
 
-function BubbleContent({ message }: { message: Message }) {
+function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message: Message; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -52,17 +52,31 @@ function BubbleContent({ message }: { message: Message }) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="flex-1">{message.text}</span>
+      <span className="flex-1 whitespace-pre-wrap">{message.text}</span>
       {message.user === "bot" && message.audioData && (
-        <button type="button" onClick={isPlaying ? stopAudio : playAudio} className="size-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 text-white">
-          {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+        <button
+          type="button"
+          onClick={() => {
+            if (isAudioPlaying && pauseCurrentAudio) {
+              pauseCurrentAudio();
+              return;
+            }
+            if (isPlaying) {
+              stopAudio();
+            } else {
+              playAudio();
+            }
+          }}
+          className="size-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 text-white"
+        >
+          {(isAudioPlaying || isPlaying) ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
       )}
     </div>
   );
 }
 
-function ChatBubble({ message }: { message: Message }) {
+function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Message; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -74,12 +88,12 @@ function ChatBubble({ message }: { message: Message }) {
       ${message.user === "user" ? "self-end text-white bg-[#e16e09]/30 border-[#e16e09]/50 shadow-[0_8px_32px_rgba(225,110,9,0.25)]" : "self-start text-foreground-900 bg-white/15 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"}
     `}
     >
-      <BubbleContent message={message} />
+      <BubbleContent message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />
     </motion.div>
   );
 }
 
-export function ChatBubbles({ messages }: { messages: Message[] }) {
+export function ChatBubbles({ messages, pauseCurrentAudio, isAudioPlaying }: { messages: Message[]; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
   return (
     <motion.div className="flex w-full h-full z-100 absolute pb-44 pt-20 flex justify-center align-center user-select-none pointer-events-none" initial="hidden" animate="show">
       <motion.div
@@ -93,7 +107,7 @@ export function ChatBubbles({ messages }: { messages: Message[] }) {
         }}
       >
         {messages.map((message, index) => (
-          <ChatBubble key={index} message={message} />
+          <Bubble key={index} message={message} pauseCurrentAudio={pauseCurrentAudio} isAudioPlaying={isAudioPlaying} />
         ))}
       </motion.div>
     </motion.div>
