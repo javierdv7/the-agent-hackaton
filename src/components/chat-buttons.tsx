@@ -26,6 +26,8 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
 
   const startVoiceInput = () => {
     if (waiting) return;
+    if (typeof window === "undefined") return;
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Tu navegador no soporta reconocimiento de voz.");
@@ -53,6 +55,7 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
     };
     recognition.onerror = () => {
       setIsRecording(false);
+      recognitionRef.current = null;
     };
     recognition.onend = () => {
       setIsRecording(false);
@@ -75,7 +78,7 @@ export function ChatButtons({ input, setInput, handleSubmit, waiting }: ChatButt
   }, []);
 
   return (
-    <motion.div className="w-full h-20 z-100 absolute bottom-5 p-2 gap-2 flex justify-center align-center" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+    <motion.div className="w-full h-20 z-[100] absolute bottom-5 p-2 gap-2 flex justify-center items-center" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
       <motion.form
         className={`w-[60%] h-full flex items-center justify-center gap-2 ${isMobile ? "w-full" : ""}`}
         initial="hidden"

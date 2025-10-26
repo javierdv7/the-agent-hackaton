@@ -1,7 +1,7 @@
 "use client";
 import { Message } from "@/lib/types";
 import { motion } from "framer-motion";
-import { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -61,7 +61,7 @@ function BubbleContent({ message, pauseCurrentAudio, isAudioPlaying }: { message
           remarkPlugins={[remarkGfm, remarkBreaks]}
           components={{
             a: (props) => <a {...props} className="underline" target="_blank" rel="noopener noreferrer" />,
-            code: ({ inline, className, children, ...props }: { inline?: boolean; className?: string; children: ReactNode }) => {
+            code: ({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: ReactNode }) => {
               const isInline = Boolean(inline);
               if (isInline) {
                 return (
@@ -129,7 +129,7 @@ function Bubble({ message, pauseCurrentAudio, isAudioPlaying }: { message: Messa
 export function ChatBubbles({ messages, pauseCurrentAudio, isAudioPlaying }: { messages: Message[]; pauseCurrentAudio?: () => void; isAudioPlaying?: boolean }) {
   const isMobile = useIsMobile();
   return (
-    <motion.div className="flex w-full h-full z-100 absolute pb-28 pt-20 flex justify-center align-center user-select-none pointer-events-none" initial="hidden" animate="show">
+    <motion.div className={`flex w-full h-full z-[200] absolute pb-28 pt-20 flex ${isMobile ? "justify-end" : "justify-center"} align-center user-select-none pointer-events-none`} initial="hidden" animate="show">
       <motion.div
         className={`h-full w-[${isMobile ? "100%" : "50%"}] flex flex-col gap-4 px-4 justify-end`}
         variants={{
