@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
@@ -13,11 +15,9 @@ export async function POST(req: Request) {
       return new Response(text || "Upstream error", { status: upstream.status });
     }
 
-    // Asume JSON; si upstream devuelve texto, adapta según tu caso.
     const data = await upstream.json();
     return Response.json(data, {
       headers: {
-        // Útil si luego llamas esta API desde otra origen
         "Access-Control-Allow-Origin": "*",
       },
     });
