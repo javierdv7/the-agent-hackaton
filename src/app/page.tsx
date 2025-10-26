@@ -15,10 +15,10 @@ export default function Home() {
         defaultOpen={false}
       >
         <AppSidebar />
-        <SidebarInset>
-          <Spline scene="https://prod.spline.design/aOWMFN9EyxGf5rvB/scene.splinecode" />
+        <SidebarInset className="bg-grid-glow">
+          <Spline scene="https://prod.spline.design/aOWMFN9EyxGf5rvB/scene.splinecode" className="z-100" />
           <header className="flex h-16 shrink-0 items-center gap-2 px-2 absolute top-0">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="z-1000" />
           </header>
           <Chat />
         </SidebarInset>
